@@ -9,6 +9,7 @@ This is the official DOPE ROS package for detection and 6-DoF pose estimation of
 ![DOPE Objects](dope_objects.png)
 
 ## Updates 
+2021/06/11 - Migrated to ROS2
 2020/03/09 - Added HOPE [weights to google drive](https://drive.google.com/open?id=1DfoA3m_Bm0fW8tOWXGVxi4ETlLEAgmcg), [the 3d models](https://drive.google.com/drive/folders/1jiJS9KgcYAkfb8KJPp5MRlB0P11BStft), and the objects dimensions to config. [Tremblay et al., IROS 2020](https://arxiv.org/abs/2008.11822).
 
 2020/02/09 - Upgraded DOPE to use Python 3. Updated Dockerfile to use Python3-compatible ROS Noetic. The Python 2.7/ROS Kinetic is still available on the ['ros-kinetic' branch](https://github.com/NVlabs/Deep_Object_Pose/tree/ros-kinetic).
@@ -21,92 +22,73 @@ This is the official DOPE ROS package for detection and 6-DoF pose estimation of
 
 ## Installing
 
-We have tested on Ubuntu 20.04 with ROS Noetic with an NVIDIA Titan X and RTX 2080ti with python 3.8.  The code may work on other systems.
+We have tested on Ubuntu 20.04 with ROS2 Foxy with an NVIDIA RTX 2070 with python 3.8. The code may work on other systems.
 
-The following steps describe the native installation. Alternatively, use the provided [Docker image](docker/readme.md) and skip to Step #7.
+The following steps describe the native installation.
 
-1. **Install ROS**
+1. **Install ROS2**
 
-    Follow these [instructions](http://wiki.ros.org/noetic/Installation/Ubuntu).
-    You can select any of the default configurations in step 1.4; even the
-    ROS-Base (Bare Bones) package (`ros-noetic-ros-base`) is enough.
+    Follow these [instructions](https://docs.ros.org/en/foxy/Installation.html).
 
-2. **Create a catkin workspace** (if you do not already have one). To create a catkin workspace, follow these [instructions](http://wiki.ros.org/catkin/Tutorials/create_a_workspace):
+2. **Create a workspace** (if you do not already have one). To create a workspace, follow these [instructions](https://docs.ros.org/en/foxy/Tutorials/Workspace/Creating-A-Workspace.html):
     ```
-    $ mkdir -p ~/catkin_ws/src   # Replace `catkin_ws` with the name of your workspace
-    $ cd ~/catkin_ws/
-    $ catkin_make
+    $ mkdir -p ~/dev_ws/src   # Replace `dev_ws` with the name of your workspace
+    $ cd ~/dev_ws/
+    $ colcon build --symlink-install
     ```
 
 3. **Download the DOPE code**
     ```
-    $ cd ~/catkin_ws/src
-    $ git clone https://github.com/NVlabs/Deep_Object_Pose.git dope
+    $ cd ~/dev_ws/src
+    $ git clone https://github.com/gentlebots/Deep_Object_Pose.git
     ```
 
 4. **Install python dependencies**
     ```
-    $ cd ~/catkin_ws/src/dope
+    $ cd ~/dev_ws/src/Deep_Object_Pose
     $ python3 -m pip install -r requirements.txt
     ```
 
 5. **Install ROS dependencies**
     ```
-    $ cd ~/catkin_ws
-    $ rosdep install --from-paths src -i --rosdistro noetic
-    $ sudo apt-get install ros-noetic-rosbash ros-noetic-ros-comm
+    $ cd ~/dev_ws
+    $ rosdep install -i --from-path src --rosdistro foxy -y
     ```
 
 6. **Build**
     ```
-    $ cd ~/catkin_ws
-    $ catkin_make
+    $ cd ~/dev_ws
+    $ colcon build --symlink-install
     ```
 
-7. **Download [the weights](https://drive.google.com/open?id=1DfoA3m_Bm0fW8tOWXGVxi4ETlLEAgmcg)** and save them to the `weights` folder, *i.e.*, `~/catkin_ws/src/dope/weights/`.
-
+7. **Download [the weights](https://drive.google.com/open?id=1DfoA3m_Bm0fW8tOWXGVxi4ETlLEAgmcg)** and save them to the `weights` folder, *i.e.*, `~/dev_ws/src/Deep_Object_Pose/dope/weights/`.
 
 ## Running
+1. **Bring up your favorite simulator or real robot with a camera**
 
-1. **Start ROS master**
-    ```
-    $ cd ~/catkin_ws
-    $ source devel/setup.bash
-    $ roscore
-    ```
-
-2. **Start camera node** (or start your own camera node)
-    ```
-    $ roslaunch dope camera.launch  # Publishes RGB images to `/dope/webcam_rgb_raw`
-    ```
-
-    The camera must publish a correct `camera_info` topic to enable DOPE to compute the correct poses. Basically all ROS drivers have a `camera_info_url` parameter where you can set the calibration info (but most ROS drivers include a reasonable default).
-
-    For details on calibration and rectification of your camera see the [camera tutorial](doc/camera_tutorial.md).
-
-3. **Edit config info** (if desired) in `~/catkin_ws/src/dope/config/config_pose.yaml`
+2. **Edit config info** (if desired) in `~/dev_ws/src/Deep_Object_Pose/dope_launch/config/config_pose.yaml`
     * `topic_camera`: RGB topic to listen to
     * `topic_camera_info`: camera info topic to listen to
     * `topic_publishing`: topic namespace for publishing
     * `input_is_rectified`: Whether the input images are rectified. It is strongly suggested to use a rectified input topic.
     * `downscale_height`: If the input image is larger than this, scale it down to this pixel height. Very large input images eat up all the GPU memory and slow down inference. Also, DOPE works best when the object size (in pixels) has appeared in the training data (which is downscaled to 400 px). For these reasons, downscaling large input images to something reasonable (e.g., 400-500 px) improves memory consumption, inference speed *and* recognition results.
-    * `weights`: dictionary of object names and there weights path name, **comment out any line to disable detection/estimation of that object**
-    * `dimensions`: dictionary of dimensions for the objects  (key values must match the `weights` names)
-    * `class_ids`: dictionary of class ids to be used in the messages published on the `/dope/detected_objects` topic (key values must match the `weights` names)
-    * `draw_colors`: dictionary of object colors (key values must match the `weights` names)
-    * `model_transforms`: dictionary of transforms that are applied to the pose before publishing (key values must match the `weights` names)
-    * `meshes`: dictionary of mesh filenames for visualization (key values must match the `weights` names)
-    * `mesh_scales`: dictionary of scaling factors for the visualization meshes (key values must match the `weights` names)
+    * `objects`: List of objects
+    * `weight_url`: objetc weight path
+    * `dimensions`:dimensions for an objects
+    * `class_id`: class id to be used in the messages published on the `/dope/detected_objects` topic 
+    * `draw_color`: object colors
+    * `model_transforms`: transforms that are applied to the pose before publishing
+    * `meshe`: mesh filename for visualization
+    * `mesh_scale`: scaling factors for the visualization mesh
     * `thresh_angle`: undocumented
     * `thresh_map`: undocumented
     * `sigma`: undocumented
     * `thresh_points`: Thresholding the confidence for object detection; increase this value if you see too many false positives, reduce it if  objects are not detected.
 
-4. **Start DOPE node**
+3. **Start DOPE node**
     ```
-    $ roslaunch dope dope.launch [config:=/path/to/my_config.yaml]  # Config file is optional; default is `config_pose.yaml`
-    ```
-
+    $ ros2 launch dope_launch dope_launch.py
+    ```   
 
 ## Debugging
 
