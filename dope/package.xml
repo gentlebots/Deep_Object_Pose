@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="2">
   <name>dope</name>
-  <version>0.0.0</version>
-  <description>The DOPE package for deep object pose estimation</description>
+  <version>0.1.0</version>
+  <description>The DOPE package for deep object pose estimation, ROS2 version</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
   <!-- <maintainer email="jane.doe@example.com">Jane Doe</maintainer> -->
   <maintainer email="jtremblay@nvidia.com">jtremblay</maintainer>
-
 
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
@@ -48,23 +48,18 @@
   <!--   <test_depend>gtest</test_depend> -->
   <!-- Use doc_depend for packages you need only for building documentation: -->
   <!--   <doc_depend>doxygen</doc_depend> -->
-  <buildtool_depend>catkin</buildtool_depend>
-  <depend>cv_bridge</depend>
-  <depend>geometry_msgs</depend>
-  <depend>message_filters</depend>
-  <depend>python-argparse</depend>
-  <depend>resource_retriever</depend>
-  <depend>rospy</depend>
-  <depend>sensor_msgs</depend>
-  <depend>std_msgs</depend>
-  <depend>tf</depend>
-  <depend>vision_msgs</depend>
-  <depend>visualization_msgs</depend>
+  <exec_depend>example_interfaces</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tf_pose_estimation_msgs</exec_depend>
+  <exec_depend>cv_bridge</exec_depend>
 
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_xmllint</test_depend>
+  <test_depend>python3-pytest</test_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
-  <export>
-    <!-- Other tools can request additional information be placed here -->
-
+ <export>
+    <build_type>ament_python</build_type>
   </export>
 </package>
