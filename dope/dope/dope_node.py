@@ -19,6 +19,7 @@ import resource_retriever
 import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
+from rclpy.qos import qos_profile_system_default
 from rcl_interfaces.msg import ParameterDescriptor
 from message_filters import Cache, Subscriber
 from transforms3d.quaternions import mat2quat, qconjugate, qmult
@@ -113,6 +114,7 @@ class DopeNode(Node):
         self.mesh_scales = {}
         self.cv_bridge = CvBridge()
         self.prev_num_detections = 0
+        self.logger = self.get_logger()
         
         parameters = [
             ('topic_camera', '', ParameterDescriptor()),
@@ -126,7 +128,6 @@ class DopeNode(Node):
             ('model_transforms', [], ParameterDescriptor()),
             ('objects', [], ParameterDescriptor()),
             ('draw_colors', '', ParameterDescriptor()),
-            ('class_ids', '', ParameterDescriptor()),
             ('topic_publishing', '', ParameterDescriptor()),
         ]
         self.declare_parameters('', parameters)
@@ -157,14 +158,11 @@ class DopeNode(Node):
             Parameter('thresh_points', type_ = Parameter.Type.DOUBLE, value = 0.1))._value
         objects = self.get_parameter_or('objects', 
             Parameter('objects', type_ = Parameter.Type.STRING_ARRAY, value = []))._value
-        print (objects)
         
         # For each object to detect, load network model, create PNP solver, and start ROS publishers
         for model in objects:
-            print (model)
             self.declare_parameter(model + ".weight_url")
             weights_url = self.get_parameter(model + ".weight_url")._value
-            print (weights_url)
             self.models[model] = \
                 ModelData(
                     model,
@@ -211,8 +209,8 @@ class DopeNode(Node):
             self.dimensions[model] = dimensions
 
             self.declare_parameter(model + ".class_id")
-            class_id = self.get_parameter_or(model + '.class_ids', 
-                    Parameter(model + '.class_ids', type_ = Parameter.Type.INTEGER, value = 0))._value
+            class_id = self.get_parameter_or(model + '.class_id', 
+                    Parameter(model + '.class_id', type_ = Parameter.Type.INTEGER, value = 0))._value
             self.class_ids[model] = class_id
 
             self.pnp_solvers[model] = \
@@ -233,7 +231,7 @@ class DopeNode(Node):
                     10
                 )
 
-        # Start ROS publishers
+        # Start ROS2 publishers
         self.pub_rgb_dope_points = \
             self.create_publisher(
                 ImageSensor_msg,
@@ -250,7 +248,7 @@ class DopeNode(Node):
             self.create_publisher(
                 Detection3DArray,
                 'detected_objects',
-                10
+                qos_profile_system_default
             )
         self.pub_markers = \
             self.create_publisher(
@@ -266,8 +264,8 @@ class DopeNode(Node):
         ts = message_filters.TimeSynchronizer([image_sub, info_sub], 1)
         ts.registerCallback(self.image_callback)
 
-        print("Running DOPE...  (Listening to camera topic: '{}')".format(topic_camera))
-        print("Ctrl-C to stop")
+        self.logger.info("Running DOPE...  (Listening to camera topic: '{}')".format(topic_camera))
+        self.logger.info("Ctrl-C to stop")
 
     def destroy(self):
         super().destroy_node()
@@ -308,7 +306,6 @@ class DopeNode(Node):
 
         detection_array = Detection3DArray()
         detection_array.header = image_msg.header
-
         for m in self.models:
             # Detect object
             results = ObjectDetector.detect_object_in_image(
@@ -317,7 +314,6 @@ class DopeNode(Node):
                 img,
                 self.config_detect
             )
-
             # Publish pose and overlay cube on image
             for i_r, result in enumerate(results):
                 if result["location"] is None:

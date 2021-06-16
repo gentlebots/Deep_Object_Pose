@@ -9,7 +9,7 @@ dope:
     thresh_map: 0.01
     sigma: 3
     thresh_points: 0.1
-    objects: ["cracker","gelatin", "meat", "mustard", "soup", "sugar", "bleach"]
+    objects: ["cracker","gelatin", "meat", "mustard", "soup", "sugar", "bleach", "Pineapple"]
     cracker:
         class_id: 1
         mesh_scale: 0.01
@@ -41,37 +41,42 @@ dope:
         class_id: 3
         weight_url: "weights/meat_20.pth"
         mesh_scale: 0.01
-        dimensions: [10.164673805236816,8.3542995452880859,5.7600898742675781]
+        dimensions: [10.164673805236816, 8.3542995452880859, 5.7600898742675781]
         draw_colors: [0, 104, 255] # blue
     mustard:
         class_id: 4
         weight_url: "weights/mustard_60.pth"
         mesh_scale: 0.01
-        dimensions: [9.6024150848388672,19.130100250244141,5.824894905090332]
+        dimensions: [9.6024150848388672, 19.130100250244141, 5.824894905090332]
         draw_colors: [217,12, 232] # magenta
     soup:
         class_id: 5
         weight_url: "weights/soup_60.pth"
         mesh_scale: 0.01
-        dimensions: [6.7659378051757813,10.185500144958496,6.771425724029541]
+        dimensions: [6.7659378051757813, 10.185500144958496, 6.771425724029541]
         draw_colors: [255, 101, 0] # orange
     sugar:
         class_id: 6
         weight_url: "weights/sugar_60.pth"
         mesh_scale: 0.01
-        dimensions: [9.267730712890625,17.625339508056641,4.5134143829345703]
+        dimensions: [9.267730712890625, 17.625339508056641, 4.5134143829345703]
         draw_colors: [232, 222, 12] # yellow
     bleach:
         class_id: 7
         weight_url: "weights/bleach_28_dr.pth"
         mesh_scale: 0.01
-        dimensions: [10.267730712890625,26.625339508056641,7.5134143829345703]
-        draw_colors: [232, 222, 12] # yellow
+        dimensions: [10.267730712890625, 26.625339508056641, 7.5134143829345703]
+        draw_colors: [92, 232, 12] # green
+    Pineapple:
+        class_id: 11
+        weight_url: "weights/Pineapple.pth"
+        mesh_scale: 0.01
+        dimensions: [5.7623000144958496, 6.95989990234375, 6.567500114440918 ]
+        draw_colors: [232, 62, 12] # red
     
     #class_id:
     #"AlphabetSoup"      : 9, 
     #"Ketchup"           : 10, 
-    #"Pineapple"         : 11,
     #"BBQSauce"          : 12, 
     #"MacaroniAndCheese" : 13, 
     #"Popcorn"           : 14,
@@ -118,7 +123,6 @@ dope:
     # "Parmesan":"package://dope/weights/Parmesan.pth", 
     # "PeasAndCarrots":"package://dope/weights/PeasAndCarrots.pth",
     # "Peaches":"package://dope/weights/Peaches.pth",
-    # "Pineapple":"package://dope/weights/Pineapple.pth",
     # "Popcorn":"package://dope/weights/Popcorn.pth",
     # "OrangeJuice":"package://dope/weights/OrangeJuice.pth", 
     # "Raisins":"package://dope/weights/Raisins.pth",

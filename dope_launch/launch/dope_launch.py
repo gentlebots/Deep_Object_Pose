@@ -26,7 +26,7 @@ def generate_launch_description():
         'RCUTILS_CONSOLE_STDOUT_LINE_BUFFERED', '1')
 
   # Create the launch configuration variables
-  params_file = LaunchConfiguration('params_file')
+  dope_params_file = LaunchConfiguration('dope_params_file')
   namespace = LaunchConfiguration('namespace')
   use_remappings = LaunchConfiguration('use_remappings')
 
@@ -34,9 +34,9 @@ def generate_launch_description():
 
 # Create our own temporary YAML files that include substitutions
   param_substitutions = {}
-
+#
   configured_params = RewrittenYaml(
-    source_file=params_file,
+    source_file=dope_params_file,
     root_key=namespace,
     param_rewrites=param_substitutions,
     convert_types=True)
@@ -46,7 +46,7 @@ def generate_launch_description():
     description='Top-level namespace')
 
   declare_params_cmd = DeclareLaunchArgument(
-    'params_file',
+    'dope_params_file',
     default_value=os.path.join(dope_dir, 'config', 'config_pose.yaml'),
     description='Full path to the TF Pose Estimation parameters file to use')
   
