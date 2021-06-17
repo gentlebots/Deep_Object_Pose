@@ -247,7 +247,7 @@ class DopeNode(Node):
         self.pub_detections = \
             self.create_publisher(
                 Detection3DArray,
-                'detected_objects',
+                '/dope/detected_objects',
                 qos_profile_system_default
             )
         self.pub_markers = \
@@ -348,7 +348,7 @@ class DopeNode(Node):
                 # Add to Detection3DArray
                 detection = Detection3D()
                 hypothesis = ObjectHypothesisWithPose()
-                hypothesis.id = str(self.class_ids[result["name"]])
+                hypothesis.id = str(result["name"])
                 hypothesis.score = float(result["score"])
                 hypothesis.pose.pose = pose_msg.pose
                 detection.results.append(hypothesis)
@@ -378,7 +378,8 @@ class DopeNode(Node):
         class_id_to_name = {class_id: name for name, class_id in self.class_ids.items()}
         markers = MarkerArray()
         for i, det in enumerate(detection_array.detections):
-            name = class_id_to_name[int(det.results[0].id)]
+            #name = class_id_to_name[int(det.results[0].id)]
+            name = det.results[0].id
             color = self.draw_colors[name]
 
             # cube marker
