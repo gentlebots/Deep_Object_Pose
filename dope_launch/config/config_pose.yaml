@@ -55,7 +55,7 @@ dope:
         mesh_scale: 0.01
         dimensions: [6.7659378051757813, 10.185500144958496, 6.771425724029541]
         draw_colors: [255, 101, 0] # orange
-    sugar:
+    sugar_box:
         class_id: 6
         weight_url: "weights/sugar_60.pth"
         mesh_scale: 0.01
