@@ -9,7 +9,7 @@ dope:
     thresh_map: 0.01
     sigma: 3
     thresh_points: 0.1
-    objects: ["cracker","gelatin", "meat", "mustard", "soup", "sugar", "bleach", "Pineapple"]
+    objects: ["cracker","gelatin", "meat", "mustard", "soup", "sugar_box", "bleach", "Pineapple"]
     cracker:
         class_id: 1
         mesh_scale: 0.01
